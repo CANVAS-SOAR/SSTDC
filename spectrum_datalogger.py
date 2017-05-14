@@ -12,8 +12,11 @@
 import numpy as np
 import pyaudio
 from time import localtime, strftime
-
+from scipy import signal
 import matplotlib.pyplot as plt
+
+# print entire numpy array
+np.set_printoptions(threshold=np.nan)
 
 class SpectrumAnalyzer:
     FORMAT = pyaudio.paFloat32
@@ -46,8 +49,9 @@ class SpectrumAnalyzer:
             while True :
                 self.data = self.audioinput()
                 self.fft()
+                self.spectrogram()
                 self.graphplot()
-                repr(self.data)
+                print(self.data, file=fp)
 
         except KeyboardInterrupt:
             self.pa.close()
@@ -66,12 +70,16 @@ class SpectrumAnalyzer:
         self.spec_x = np.fft.fftfreq(self.N, d = 1.0 / self.RATE)  
         y = np.fft.fft(self.data[self.START:self.START + self.N])    
         self.spec_y = [np.sqrt(c.real ** 2 + c.imag ** 2) for c in y]
+    
+    def spectrogram(self):
+        self.f, self.t, self.Sxx = signal.spectrogram(spec_x, 10e3)
 
     def graphplot(self):
         plt.clf()
         plt.subplot()
-        plt.plot(self.spec_x, self.spec_y, linestyle='-')
+        #plt.plot(self.spec_x, self.spec_y, linestyle='-')
         plt.axis([0, self.RATE / 2, 0, 25])
+        plt.pcolormesh(self.t, self.f, self.Sxx)
         plt.xlabel("frequency [Hz]")
         plt.ylabel("amplitude spectrum")
         plt.pause(.001)
