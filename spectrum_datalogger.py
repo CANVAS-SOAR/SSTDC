@@ -56,7 +56,7 @@ class SpectrumAnalyzer:
         print("End...")
 
     def audioinput(self):
-        ret = self.stream.read(self.CHUNK, False)
+        ret = self.stream.read(self.CHUNK)#, exception_on_overflow = False)
         ret = np.fromstring(ret, np.float32)
         return ret
 
