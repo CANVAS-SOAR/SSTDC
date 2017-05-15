@@ -107,6 +107,7 @@ init = tf.global_variables_initializer()
 sess.run(init)
 
 '''
+# not currently included because getBatch() is not yet defined
 for i in range(10000):
 	batch = getBatch(10)
 	if i % 100 == 0:
