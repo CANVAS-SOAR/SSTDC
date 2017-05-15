@@ -12,7 +12,7 @@ end_h = int(height/16)
 end_bin_size = int(bin_size/16)
 
 # x holds intensity maps, shape=(# of examples, TBD, TBD, 1 channel)
-x = tf.placeholder(tf.float32, shape=(None, height, width, 1))
+x = tf.placeholder(tf.float32, shape=(None, height, bin_size, 1))
 
 # holds the ground truth of the network about what the example is in one hot vector
 # outputs can be 1 of 3 things= nothing, human walking, or car. ie [1, 0, 0] = nothing
@@ -69,7 +69,7 @@ def network(x, weights, biases, dropout):
 	fc1_b = biases([1024])
 
 	# flatten out final pooled layer before connecting to fully connected layer
-	c4_pool = tf.reshape(c4_pool, [-1, end_h*end_w*256])
+	c4_pool = tf.reshape(c4_pool, [-1, end_h*end_bin_size*256])
 	fc1_out = tf.nn.relu(tf.matmul(c4_pool, fc1_W))
 	fc1_out = tf.nn.bias_add(fc1_out, fc1_b)
 
@@ -117,4 +117,4 @@ for i in range(10000):
 '''
 
 
-print("hello")
+print("Training Concluded")
