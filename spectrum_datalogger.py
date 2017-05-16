@@ -1,5 +1,5 @@
 # Get window size
-import os
+import os, sys
 rows, columns = os.popen('stty size', 'r').read().split()
 
 import numpy as np
@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 np.set_printoptions(threshold=np.nan)
 
 class SpectrumAnalyzer:
+    GAIN = 1
     FORMAT = pyaudio.paFloat32
     CHANNELS = 1
     RATE = 16000
@@ -79,13 +80,17 @@ class SpectrumAnalyzer:
         fft_bins = [np.max(self.spec_y[math.ceil(x*fft_bin_size):math.ceil((x+1)*fft_bin_size)])\
                     for x in range(int(fft_num_bins))]
 
+
+        os.system('clear')
         for i in range(fft_height):
             for j in range(int(columns)):
-                if fft_bins[j] > ((fft_height-i)/fft_height)*64:
-                    print('#', end='')
+                if fft_bins[j] > ((fft_height-i)/fft_height)*(1/gain)*100:
+                    sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (i, j, "#"))
+                    #print('#', end='')
                 else:
-                    print(' ', end='')
-            print()
+                    sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (i, j, " "))
+                    #print(' ', end='')
+        sys.stdout.flush()
 
         #print(int(np.sum(self.spec_y)/len(self.spec_y)*100)*'=')
         #print(self.spec_y)
