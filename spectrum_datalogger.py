@@ -84,7 +84,7 @@ class SpectrumAnalyzer:
         os.system('clear')
         for i in range(fft_height):
             for j in range(int(columns)):
-                if fft_bins[j] > ((fft_height-i)/fft_height)*(1/gain)*100:
+                if fft_bins[j] > ((fft_height-i)/fft_height)*(1/self.GAIN)*100:
                     sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (i, j, "#"))
                     #print('#', end='')
                 else:
