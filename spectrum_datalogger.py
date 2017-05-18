@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 np.set_printoptions(threshold=np.nan)
 
 class SpectrumAnalyzer:
-    GAIN = 1
+    GAIN = 10
     FORMAT = pyaudio.paFloat32
     CHANNELS = 1
     RATE = 16000
@@ -31,18 +31,26 @@ class SpectrumAnalyzer:
 
     def __init__(self):
         self.pa = pyaudio.PyAudio()
+        imic_index = None
+        num_devices = self.pa.get_device_count()	# number of devices
+        for i in range(num_devices):		# for all devices
+            index = self.pa.get_device_info_by_index(i)	# get dict info
+            index = index['name']			# get device name
+            if( index.find('iMic') != -1):	# if iMic
+                imic_index = i				# set iMic index
         self.stream = self.pa.open(format = self.FORMAT,
             channels = self.CHANNELS, 
             rate = self.RATE, 
             input = True,
             output = False,
-            frames_per_buffer = self.CHUNK)
+            frames_per_buffer = self.CHUNK,
+			input_device_index = imic_index)
         # Main loop
         self.loop()
 
     def loop(self):
         try:
-            fp = open("datalogs/rad_"+strftime("%Y%m%d_%H%M%S", localtime())+".dat",'w')
+            fp = open("datalogs/rad_"+strftime("%Y-%m-%d_%H:%M:%S", localtime())+".dat",'w')
             while True :
                 self.data = self.audioinput()
                 self.fft()
