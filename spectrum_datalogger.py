@@ -15,11 +15,11 @@ import matplotlib.pyplot as plt
 np.set_printoptions(threshold=np.nan)
 
 class SpectrumAnalyzer:
-    GAIN = 10
+    GAIN = 100
     FORMAT = pyaudio.paFloat32
     CHANNELS = 1
     RATE = 16000
-    CHUNK = int(16000/8)
+    CHUNK = int(RATE/6)
     START = 0
     N = CHUNK
 
@@ -33,19 +33,21 @@ class SpectrumAnalyzer:
         self.pa = pyaudio.PyAudio()
         imic_index = None
         num_devices = self.pa.get_device_count()	# number of devices
+
         for i in range(num_devices):		# for all devices
-            index = self.pa.get_device_info_by_index(i)	# get dict info
-            index = index['name']			# get device name
-            if( index.find('iMic') != -1):	# if iMic
-                imic_index = i				# set iMic index
+            index_full = self.pa.get_device_info_by_index(i)	# get dict info
+            name = index_full['name']			# get device name
+            if( name.find('iMic') != -1):	# if iMic
+                imic_index = index_full['index']# set iMic index
         self.stream = self.pa.open(format = self.FORMAT,
             channels = self.CHANNELS, 
             rate = self.RATE, 
             input = True,
             output = False,
             frames_per_buffer = self.CHUNK,
-			input_device_index = imic_index)
-        # Main loop
+			input_device_index = imic_index) # set input
+        # Main loopbelkin 
+        
         self.loop()
 
     def loop(self):
@@ -60,7 +62,7 @@ class SpectrumAnalyzer:
                 print(self.data, file=fp)
 
         except KeyboardInterrupt:
-            self.pa.close()
+            self.pa.close(self.stream)
             fp.close()
 
         print("End...")
@@ -102,7 +104,6 @@ class SpectrumAnalyzer:
 
         #print(int(np.sum(self.spec_y)/len(self.spec_y)*100)*'=')
         #print(self.spec_y)
-        
     def graphplot(self):
         plt.clf()
         plt.subplot()
