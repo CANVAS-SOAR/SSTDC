@@ -53,7 +53,7 @@ class DataLoader:
 		batchSpecs = self.trainSpecs[[i for i in index]]
 		batchGT = self.trainGT[[i for i in index]]
 		
-		return batchSpecs, batchGT
+		return [batchSpecs, batchGT]
 
 	def getTest(self, size, all=False):
 
@@ -66,6 +66,6 @@ class DataLoader:
 		else:	# randomly choose
 			index = np.random.randint(self.trainSpecs.shape[0], size=size)
 
-		return test_specs, test_gt
+		return [test_specs, test_gt]
 		
 

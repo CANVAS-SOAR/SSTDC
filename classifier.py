@@ -1,4 +1,15 @@
 import tensorflow as tf
+import sys, os
+sys.path.append('./')
+from data_loader import *
+
+path = os.getcwd()
+data = DataLoader()
+
+os.chdir('../data/practice_data/') # go to directory where data is located
+path = os.getcwd()
+
+data.loadData()
 
 train_path = ''	# path to training data
 test_path = ''	# path to test data
@@ -12,11 +23,12 @@ end_h = int(height/16)
 end_bin_size = int(bin_size/16)
 
 # x holds intensity maps, shape=(# of examples, TBD, TBD, 1 channel)
-x = tf.placeholder(tf.float32, shape=(None, height, bin_size, 1))
+x = tf.placeholder(tf.float32, shape=(None, height, bin_size,1))
 
 # holds the ground truth of the network about what the example is in one hot vector
 # outputs can be 1 of 3 things= nothing, human walking, or car. ie [1, 0, 0] = nothing
 y_ = tf.placeholder(tf.float32, [None, 3])
+keep_prob = tf.placeholder(tf.float32)
 
 def weights(shape):
 	# variable filled with random normally distributed number with shape of "shape"
@@ -74,10 +86,9 @@ def network(x, weights, biases, dropout):
 	fc1_out = tf.nn.bias_add(fc1_out, fc1_b)
 
 	# will be defined while training
-	keep_probability = tf.placeholder(tf.float32)
 
 	# dropout to prevent overfitting
-	fc1_out_dropout = tf.nn.dropout(fc1_out, keep_probability)
+	fc1_out_dropout = tf.nn.dropout(fc1_out, keep_prob)
 
 	# second fully connected layer
 	fc2_W = weights([1024, 3])
@@ -106,15 +117,17 @@ sess = tf.Session()
 init = tf.global_variables_initializer()
 sess.run(init)
 
-'''
+
 # not currently included because getBatch() is not yet defined
-for i in range(10000):
-	batch = getBatch(10)
-	if i % 100 == 0:
-		train_accuracy = accuracy.eval(feed_dict={x:batch[0], y_:batch[1]})
+for i in range(100):
+	batch = data.getBatch(10)
+	if i % 1 == 0:
+		train_accuracy = sess.run(accuracy, feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})		
+		# train_accuracy = accuracy.eval(feed_dict={x:batch[0], y_:batch[1]})
 		print("%d: Accuracy= %g" % (i, train_accuracy))
-	train_step.run(feed_dict={x:batch[0], y_:batch[1]})
-'''
+	sess.run(train_step, feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})	
+	#train_step.run(feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})
+
 
 
 print("Training Concluded")

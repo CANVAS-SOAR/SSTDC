@@ -19,7 +19,7 @@ class SpectrumAnalyzer:
     FORMAT = pyaudio.paFloat32
     CHANNELS = 1
     RATE = 16000
-    CHUNK = int(RATE/6)
+    CHUNK = int(16000/8)
     START = 0
     N = CHUNK
 
