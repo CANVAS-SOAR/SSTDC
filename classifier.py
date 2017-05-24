@@ -129,5 +129,10 @@ for i in range(100):
 	#train_step.run(feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})
 
 
-
 print("Training Concluded")
+
+testBatch = data.getTest(0,all=True)
+
+print("test accuracy %g" % sess.run(accuracy, feed_dict={x:testBatch[0], y_:testBatch[1], keep_prob: 0.5}))
+
+
