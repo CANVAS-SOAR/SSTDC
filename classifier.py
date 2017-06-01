@@ -1,3 +1,15 @@
+'''	Important Note for running/training the model
+In order to actually train the model:
+-line call to os.chdir() must be able to navigate to the correct data directory, can be set where ever as long as properly found
+-the data must be stored in the following manner "./record/train/*","./gt/train/*","./record/test/*","./gt/test/*". So in this case, '/practice_data/' has two folders, /practice_data/record and /practice_data/gt, for recording and ground truth. Then each of these has a /train & /test folder. This could be modified by appropriately changing data_loader.py to fit desired action
+-heith and bin_size must be set correctly the the height and width of the "image", the numpy array spectrogram chunks, that will be fed in to train, otherwise the network will not run.
+	-remember that each gt file for a corresponding data chunk must be a 3 element array, ie [ 1, 0, 0 ] to represent whether the bin has nothing, a car or people walking. This could be changed to 2 elements, car or people, by feeding no bins with nothing, however since the intent was to do real time processing it was designed with the idea that it would have the option to choose nothing present
+-The log path must be appropriately set to log information needed for tensorboard
+	-# *** Also note that logs must be started fresh each iteration, otherwise tensorboard will regraph old logs, so delete logs in between runs ***
+-The model_path must be appropriately set in order to be able to reload the model to run later, ie realtime processing
+'''
+
+
 import tensorflow as tf
 import sys, os
 sys.path.append('./')
@@ -115,6 +127,15 @@ accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
 # create a session to run model
 sess = tf.Session()
 init = tf.global_variables_initializer()
+saver = tf.train.Saver()
+merged = tf.summary.merge_all()
+
+# set log_path to desired path for logs
+# *** Also note that logs must be started fresh each iteration, otherwise tensorboard
+# will regraph old logs, so delete logs in between files ***
+log_path = "/home/ryan/Documents/SSTDC/net_classifier/logs/"
+writer = tf.summary.FileWriter(log_path, sess.graph)
+
 sess.run(init)
 
 
@@ -134,5 +155,9 @@ print("Training Concluded")
 testBatch = data.getTest(0,all=True)
 
 print("test accuracy %g" % sess.run(accuracy, feed_dict={x:testBatch[0], y_:testBatch[1], keep_prob: 0.5}))
+
+# set model_path to where you want to save the model
+model_path = "/home/ryan/Documents/SSTDC/netclassifier/model/sstdc_classifier.ckpt/"
+save_path = saver.save(sess, model_path)
 
 
