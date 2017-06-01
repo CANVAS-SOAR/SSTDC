@@ -7,7 +7,10 @@ from scipy import signal
 
 path = '/home/ryan/Documents/SSTDC/data/5_18/datalogs/'	# change to fit your data loc
 fname = path + 'rad_2017-05-18_22:20:32.dat'			# filename
-
+'''
+path = '/home/ryan/Documents/SSTDC/data/5_21/datalogs/'	# change to fit your data loc
+fname = path + 'rad_2017-05-21_18:03:48.dat'			# filename
+'''
 '''
 Name = getNParray
 Purpose = read radar recording .dat files
@@ -47,14 +50,24 @@ Parameters = array=np array of recording, FS=sampling rate
 returns = the spectrogram intensity map as an np array
 '''
 def Spec(array, FS):
-	f, t, Sxx = signal.spectrogram(array, fs=FS, window=signal.hamming(10000,sym=True), noverlap=9000)	# input array and sample rate, use hamming window with 90% overlap
-	plt.pcolormesh(t, f, Sxx)		# I believe for setting the color settings
+	#f, t, Sxx = signal.spectrogram(array, fs=FS, window=signal.hamming(10000,sym=True), noverlap=9000)	# input array and sample rate, use hamming window with 90% overlap
+	f, t, Sxx = signal.spectrogram(array, fs=FS, window=signal.hamming(10000,sym=True), noverlap=9000)
+	#fig = plt.subplot(1, 1, 1)
+	#plt.pcolormesh(t, f, Sxx, cmap='Reds')		# I believe for setting the color settings
+	plt.pcolormesh(t, f, Sxx)
 	plt.ylabel('Frequency [Hz]')	# Labels
 	plt.xlabel('Time [sec]')
-	axes = plt.gca()				# not sure what this line does
-	axes.set_ylim([0,800])			# arbitrarily capped, otherwise max y is 44100/2
+	axes = plt.gca()				# gets the current axis instances
+	axes.set_ylim([0,1000])			# arbitrarily capped, otherwise max y is 44100/2
+	
+	#connection_id = fig.canvas.mpl_connect('button_press_event', clickXY)
+	
 	plt.show()						# show
 	return Sxx
+
+def clickXY(event):
+	if event.button:
+		print("I clicked")
 
 
 recording = getNParray(fname)		# read file
