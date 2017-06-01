@@ -20,7 +20,7 @@ path = os.getcwd()
 data = DataLoader()
 
 os.chdir('../data/practice_data/') # go to directory where data is located
-path = os.getcwd()
+#path = os.getcwd()
 
 data.loadData()
 
@@ -120,7 +120,8 @@ def network(x, weights, biases, dropout):
 	y_out = tf.matmul(fc1_out_dropout, fc2_W)
 	with tf.name_scope("output"):
 		y_out = tf.nn.bias_add(y_out, fc2_b)
-		tf.summary.histogram("output", y_out)
+		# commented out because of infinity in histogram error, probably / by 0
+		#tf.summary.histogram("output", y_out)
 	
 	# return the predictions	
 	return y_out
@@ -130,7 +131,7 @@ prediction = network(x, weights, biases, .05)
 
 # cost, compute softmax cross entropy between the prediction and GT
 with tf.name_scope("cross_entropy"):
-	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(prediction, y_), name="cross")
+	cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y_), name="cross")
 	tf.summary.scalar("cross_entropy", cross_entropy)
 
 # minimze the cross entropy with gradient descent with step of 0.5
@@ -154,7 +155,7 @@ merged = tf.summary.merge_all()
 # set log_path to desired path for logs
 # *** Also note that logs must be started fresh each iteration, otherwise tensorboard
 # will regraph old logs, so delete logs in between files ***
-log_path = "/home/ryan/Documents/SSTDC/net_classifier/logs/"
+log_path = "../../net_classifier/logs/"
 writer = tf.summary.FileWriter(log_path, sess.graph)
 
 sess.run(init)
@@ -163,11 +164,13 @@ sess.run(init)
 # not currently included because getBatch() is not yet defined
 for i in range(num_iterations):
 	batch = data.getBatch(10)
+	sess.run(train_step, feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})	
 	if i % 1 == 0:
 		train_accuracy = sess.run(accuracy, feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})		
 		# train_accuracy = accuracy.eval(feed_dict={x:batch[0], y_:batch[1]})
 		print("%d: Accuracy= %g" % (i, train_accuracy))
-	sess.run(train_step, feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})	
+		result = sess.run(merged, feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})
+		writer.add_summary(result, i)
 	#train_step.run(feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})
 
 
@@ -178,7 +181,7 @@ testBatch = data.getTest(0,all=True)
 print("test accuracy %g" % sess.run(accuracy, feed_dict={x:testBatch[0], y_:testBatch[1], keep_prob: 0.5}))
 
 # set model_path to where you want to save the model
-model_path = "/home/ryan/Documents/SSTDC/net_classifier/model/sstdc_classifier.ckpt/"
+model_path = "../../net_classifier/model/sstdc_classifier.ckpt"
 save_path = saver.save(sess, model_path)
 
 
