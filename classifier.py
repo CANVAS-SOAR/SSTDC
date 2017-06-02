@@ -4,9 +4,9 @@ In order to actually train the model:
 -the data must be stored in the following manner "./record/train/*","./gt/train/*","./record/test/*","./gt/test/*". So in this case, '/practice_data/' has two folders, /practice_data/record and /practice_data/gt, for recording and ground truth. Then each of these has a /train & /test folder. This could be modified by appropriately changing data_loader.py to fit desired action
 -heith and bin_size must be set correctly the the height and width of the "image", the numpy array spectrogram chunks, that will be fed in to train, otherwise the network will not run.
 	-remember that each gt file for a corresponding data chunk must be a 3 element array, ie [ 1, 0, 0 ] to represent whether the bin has nothing, a car or people walking. This could be changed to 2 elements, car or people, by feeding no bins with nothing, however since the intent was to do real time processing it was designed with the idea that it would have the option to choose nothing present
--The log path must be appropriately set to log information needed for tensorboard
+-Solved I believe, although log folder must exist- The log path must be appropriately set to log information needed for tensorboard
 	-# *** Also note that logs must be started fresh each iteration, otherwise tensorboard will regraph old logs, so delete logs in between runs ***
--The model_path must be appropriately set in order to be able to reload the model to run later, ie realtime processing
+-Solved I believe, although the folder model must exist- The model_path must be appropriately set in order to be able to reload the model to run later, ie realtime processing
 -also num_iterations should be set to something much higher. I do not know what exactly, but I think maybe 20000? idk this could be a trial and error thing
 '''
 
@@ -156,7 +156,7 @@ merged = tf.summary.merge_all()
 # *** Also note that logs must be started fresh each iteration, otherwise tensorboard
 # will regraph old logs, so delete logs in between files ***
 log_path = "../../net_classifier/logs/"
-writer = tf.summary.FileWriter(log_path, sess.graph)
+writer = tf.summary.FileWriter(log_path, graph=sess.graph)
 
 sess.run(init)
 
@@ -166,10 +166,10 @@ for i in range(num_iterations):
 	batch = data.getBatch(10)
 	sess.run(train_step, feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})	
 	if i % 1 == 0:
-		train_accuracy = sess.run(accuracy, feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})		
+		train_accuracy, result = sess.run([accuracy, merged], feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})		
 		# train_accuracy = accuracy.eval(feed_dict={x:batch[0], y_:batch[1]})
 		print("%d: Accuracy= %g" % (i, train_accuracy))
-		result = sess.run(merged, feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})
+		#result = sess.run(merged, feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})
 		writer.add_summary(result, i)
 	#train_step.run(feed_dict={x:batch[0], y_:batch[1], keep_prob: 0.5})
 
