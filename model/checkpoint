@@ -1,0 +1,2 @@
+model_checkpoint_path: "sstdc_classifier.ckpt"
+all_model_checkpoint_paths: "sstdc_classifier.ckpt"

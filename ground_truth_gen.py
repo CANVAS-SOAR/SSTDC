@@ -1,12 +1,13 @@
 import sys, os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 #from matplotlib.pyplot import specgram
 from scipy import signal
 
 
-path = '/home/ryan/Documents/SSTDC/data/5_18/datalogs/'	# change to fit your data loc
-fname = path + 'rad_2017-05-18_22:20:32.dat'			# filename
+path = '../data/5_22/datalogs/'	# change to fit your data loc
+fname = path + 'rad_2017-05-22_18_39_25.dat'			# filename
 '''
 path = '/home/ryan/Documents/SSTDC/data/5_21/datalogs/'	# change to fit your data loc
 fname = path + 'rad_2017-05-21_18:03:48.dat'			# filename
@@ -51,10 +52,16 @@ returns = the spectrogram intensity map as an np array
 '''
 def Spec(array, FS):
 	#f, t, Sxx = signal.spectrogram(array, fs=FS, window=signal.hamming(10000,sym=True), noverlap=9000)	# input array and sample rate, use hamming window with 90% overlap
-	f, t, Sxx = signal.spectrogram(array, fs=FS, window=signal.hamming(10000,sym=True), noverlap=9000)
+	f, t, Sxx = signal.spectrogram(array, fs=FS, scaling='density', window=signal.hamming(10000,sym=True), noverlap=9000)
 	#fig = plt.subplot(1, 1, 1)
-	#plt.pcolormesh(t, f, Sxx, cmap='Reds')		# I believe for setting the color settings
-	plt.pcolormesh(t, f, Sxx)
+	print(Sxx)
+
+	#plt.pcolormesh(t, f, Sxx, norm=colors.PowerNorm(gamma=1./12.), cmap='gist_heat')
+	#plt.pcolormesh(t, f, Sxx, norm=colors.PowerNorm(gamma=1./16.), cmap='jet')
+	#plt.pcolormesh(t, f, Sxx, norm=colors.LogNorm(vmin=Sxx.min(), vmax=Sxx.max()), cmap='gist_heat')
+	plt.pcolormesh(t, f, Sxx, norm=colors.LogNorm(vmin=Sxx.min(), vmax=Sxx.max()), cmap='jet')	
+	#plt.pcolormesh(t, f, Sxx)
+
 	plt.ylabel('Frequency [Hz]')	# Labels
 	plt.xlabel('Time [sec]')
 	axes = plt.gca()				# gets the current axis instances
