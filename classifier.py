@@ -19,7 +19,7 @@ from data_loader import *
 path = os.getcwd()
 data = DataLoader()
 
-os.chdir('../data/practice_data/') # go to directory where data is located
+os.chdir('../data/network_data/') # go to directory where data is located
 #path = os.getcwd()
 
 data.loadData()
@@ -31,12 +31,12 @@ test_path = ''	# path to test data
 num_iterations = 100
 
 # height and width of intensity maps passed in (divisible by 16, 2^(# of max_pools))
-height = 128
-bin_size = 128
+height = 794
+bin_size = 48
 
 # data height and width after encoding conv layers
-end_h = int(height/16)
-end_bin_size = int(bin_size/16)
+end_h = int(height/4)
+end_bin_size = int(bin_size/4)
 
 with tf.name_scope("input"):
 # x holds intensity maps, shape=(# of examples, TBD, TBD, 1 channel)
@@ -45,7 +45,7 @@ with tf.name_scope("input"):
 # holds the ground truth of the network about what the example is in one hot vector
 # outputs can be 1 of 3 things= nothing, human walking, or car. ie [1, 0, 0] = nothing
 with tf.name_scope("labeled_data"):
-	y_ = tf.placeholder(tf.float32, [None, 3], name="labeled")
+	y_ = tf.placeholder(tf.float32, [None, 2], name="labeled")
 
 keep_prob = tf.placeholder(tf.float32)
 
@@ -114,8 +114,8 @@ def network(x, weights, biases, dropout):
 	fc1_out_dropout = tf.nn.dropout(fc1_out, keep_prob)
 
 	# second fully connected layer
-	fc2_W = weights([1024, 3],"_FC2")
-	fc2_b = biases([3],"_FC2")
+	fc2_W = weights([1024, 2],"_FC2")
+	fc2_b = biases([2],"_FC2")
 
 	y_out = tf.matmul(fc1_out_dropout, fc2_W)
 	with tf.name_scope("output"):
